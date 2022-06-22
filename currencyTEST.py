@@ -53,7 +53,6 @@ class Currency:
             print(self.get_info("UAH", "SELL", ['PrivatBank']))
             print(self.get_info("UAH", "BUY", ['PrivatBank']))
 
-
-Currency().restart()
+##Currency().restart()
 
 # Currency.get_info("UAH", "SELL",['PrivatBank'])
