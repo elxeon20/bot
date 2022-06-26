@@ -1,0 +1,83 @@
+import requests
+class Currency:
+    def __init__(self):
+       pass
+    @staticmethod
+    def get_info(asset,tradeType,payTypes):
+        headers = {
+                    "Accept": "*/*",
+                    "Accept-Encoding": "gzip, deflate, br",
+                    "Accept-Language": "en-GB,en-US;q=0.9,en;q=0.8",
+                    "Cache-Control": "no-cache",
+                    "Connection": "keep-alive",
+                    "Content-Length": "123",
+                    "content-type": "application/json",
+                    "Host": "p2p.binance.com",
+                    "Origin": "https://p2p.binance.com",
+                    "Pragma": "no-cache",
+                    "TE": "Trailers",
+                    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:88.0) Gecko/20100101 Firefox/88.0"
+                }
+        data = {
+                    "asset": asset,
+                    "fiat": "UAH",
+                    "merchantCheck": False,
+                    "page": 1,
+                    "payTypes": payTypes,
+                    "publisherType": None,
+                    "rows": 10,
+                    "tradeType": tradeType
+        }
+
+        r = requests.post('https://p2p.binance.com/bapi/c2c/v2/friendly/c2c/adv/search', headers=headers, json=data)
+        r = r.text.replace('null', '0').replace('true', 'True').replace('false', 'False')
+        r = eval(r)
+        #print(r)
+        data = []
+        for i in range(10):
+            price = round(float(r.get('data')[i].get('adv').get('price')),2)
+            amount = round(float(r.get('data')[i].get('adv').get('surplusAmount')),2)
+            min = round(float(r.get('data')[i].get('adv').get('minSingleTransAmount')),2)
+
+            data.append((f"Цена {price} | кол-во {amount} грн. | мин обьем {min} грн"))
+        return data
+        #print('------------------------')
+
+
+#print(Currency.get_info("UAH", "BUY",['PrivatBank']))
+
+#Currency.get_info("UAH", "SELL",['PrivatBank'])
+-------------------------------------------------------------------------
+
+from currency import Currency
+from aiogram import Bot, types
+from aiogram.dispatcher import Dispatcher
+from aiogram.utils import executor
+
+# import os
+
+bot = Bot(token='5508872275:AAGRObICSLARPZsqpYy0IAMUeufp0cM1YaY', parse_mode=types.ParseMode.HTML)
+dp = Dispatcher(bot)
+
+
+@dp.message_handler()
+async def echo_sender(message):
+    #await message.answear(message.text)
+    #await message.reply(message.text)
+    # await bot.send_message(message.from_user.id, message.text)
+    if list(message)[4][1] == 'b':
+        a = Currency.get_info("UAH", "BUY", ['PrivatBank'])
+        a = str(a)
+        a = a.replace(',', '\n').replace('[','').replace(']','').replace("'","")
+        return await message.reply(a)
+
+    elif list(message)[4][1] == 's':
+        a = Currency.get_info("UAH", "SELL", ['PrivatBank'])
+        a = str(a)
+        a = a.replace(',', '\n').replace('[','').replace(']','').replace("'","")
+        return await message.reply(a)
+    else:
+        return await message.reply("Ввеведите 's' для поиска цены продаж \n Ввеведите 'b' для поиска цены покупок")
+
+
+executor.start_polling(dp, skip_updates=True)
