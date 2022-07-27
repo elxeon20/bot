@@ -15,13 +15,13 @@ async def echo_sender(message):
     #await message.reply(message.text)
     # await bot.send_message(message.from_user.id, message.text)
     if list(message)[4][1] == 'b':
-        a = Currency("UAH", "BUY", ['PrivatBank']).data_convert()
+        a = Currency("UAH", "BUY", ['MonoBank']).data_convert()
         a = str(a)
         a = a.replace(',', '\n').replace('[','').replace(']','').replace("'","")
         return await message.reply(a)
 
     elif list(message)[4][1] == 's':
-        a = Currency("UAH", "SELL", ['PrivatBank']).data_convert()
+        a = Currency("UAH", "SELL", ['MonoBank']).data_convert()
         a = str(a)
         a = a.replace(',', '\n').replace('[','').replace(']','').replace("'","")
         return await message.reply(a)
